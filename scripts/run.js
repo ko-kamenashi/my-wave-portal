@@ -1,21 +1,36 @@
-// no need import hre from 'hardhat'
+// no need to import hre from hardhat
 
 const main = async () => {
-  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal')
-  const waveContract        = await waveContractFactory.deploy()
-  const wavePortal          = await waveContract.deployed()
+  const [owner, randomPerson] = await hre.ethers.getSigners();
+  const waveContractFactory = await hre.ethers.getContractFactory("WavePortal");
+  const waveContract = await waveContractFactory.deploy();
+  const wavePortal = await waveContract.deployed();
 
-  console.log('WavePortal address: ', wavePortal.address)
-}
+  console.log("Contract deployed to:", wavePortal.address);
+  console.log("Contract deployed by:", owner.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+
+  let waveTxn = await waveContract.wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+
+  waveTxn = await waveContract.connect(randomPerson).wave();
+  await waveTxn.wait();
+
+  waveCount = await waveContract.getTotalWaves();
+};
 
 const runMain = async () => {
   try {
-    await main()
-    process.exit(0)
+    await main();
+    process.exit(0);
   } catch (error) {
-    console.error(error)
-    process.exit(1)
+    console.log(error);
+    process.exit(1);
   }
-}
+};
 
-runMain()
+runMain();
